@@ -20,7 +20,7 @@ jobs:
   ssh-ec2-install-nginx:
     name: Prepare EC2 Stage
     runs-on: ubuntu-latest
-    needs: build
+    needs: Git-build
 
     steps:
       - name: SSH into EC2 and Prepare Target Directory
