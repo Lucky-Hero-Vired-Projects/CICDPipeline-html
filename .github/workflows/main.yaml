@@ -39,7 +39,7 @@ jobs:
   deploy-to-ec2:
     name: Deploy to EC2 Stage
     runs-on: ubuntu-latest
-    needs: prepare-ec2
+    needs: ssh-ec2-install-nginx
 
     steps:
       - name: Copy code to EC2
