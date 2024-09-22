@@ -9,13 +9,20 @@ on:
       - main
 
 jobs:
-  build: 
+  Git-build:
+    name: Build Stage
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout the code base
         uses: actions/checkout@v4
 
+  ssh-ec2-install-nginx:
+    name: Prepare EC2 Stage
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
       - name: SSH into EC2 and Prepare Target Directory
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -28,7 +35,13 @@ jobs:
             sudo apt install nginx -y
             sudo chown -R ${{ secrets.EC2_USERNAME }} /var/www/html/
             sudo chmod -R 755 /var/www/html/
-      
+
+  deploy-to-ec2:
+    name: Deploy to EC2 Stage
+    runs-on: ubuntu-latest
+    needs: prepare-ec2
+
+    steps:
       - name: Copy code to EC2
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -39,6 +52,12 @@ jobs:
           source: ./index.html
           target: /var/www/html/
 
+  restart-nginx:
+    name: Restart Nginx Stage
+    runs-on: ubuntu-latest
+    needs: deploy-to-ec2
+
+    steps:
       - name: Restart Nginx
         uses: appleboy/ssh-action@v1.0.0
         with:
